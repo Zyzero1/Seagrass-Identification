@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SeagrassLive Pro — Wireframe Skripsi</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Wireframe -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wireframe.css') }}">
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Memproses video...</div>
+    </div>
+</div>
+
+<!-- Stats Sidebar -->
+<div id="stats-sidebar" class="stats-sidebar">
+    <button class="stats-toggle" onclick="toggleStats()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.29 7 12 12 20.71 7"/>
+            <line x1="12" y1="22" x2="12" y2="12"/>
+        </svg>
+    </button>
+    <div class="stats-content" id="stats-content">
+        <div class="stat-card-modern">
+            <div class="stat-header">
+                <span class="stat-title">DETEKSI LAMUN</span>
+                <span class="stat-title">▼</span>
+            </div>
+            <div class="stat-value" id="total-detections">0</div>
+            <div class="stat-unit">Total Objek Terdeteksi</div>
+        </div>
+        <div id="species-stats"></div>
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="nav-container">
+    <div class="nav-logo">
+        <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#ffffff" width="24px" height="24px" version="1.1" viewBox="144 144 512 512">
+                <path d="m505.14 580.4c59.309 0 111.45 22.957 141.55 57.691h-493.58c30.094-34.719 82.254-57.691 141.55-57.691 13.242 0 26.117 1.1484 38.465 3.3086-26.754-41.805-28.145-119.6-27.523-160.88 0.95312-64.07-23.426-108.04-23.426-108.04s47.098 28.445 57.133 59.277c10.035 30.848-11.715 76.496 1.4219 139.84 11.562 55.727 52.16 86.094 61.773 92.605 2.9766-1.707 6.0469-3.3555 9.1758-4.9258l14.223-16.898c17.383-9.6719 32.195-24 44.285-39.66 7.0898-9.1758 14.359-20.164 19.723-30.816 16.836-11.246 49.652-30.59 82.828-35.746 0 0-57.133 36.82-69.555 68.605-4.3086 11.004-12.559 23.562-23.215 34.734 8.207-0.92188 16.609-1.4062 25.164-1.4062zm51.844-50.664c11.094 0 20.086 8.9922 20.086 20.086 0 11.078-8.9922 20.07-20.086 20.07-11.078 0-20.07-8.9922-20.07-20.07 0-11.094 8.9922-20.086 20.07-20.086zm31.559-197.92c11.094 0 20.086 8.9766 20.086 20.07s-8.9922 20.086-20.086 20.086c-11.078 0-20.07-8.9922-20.07-20.086s8.9922-20.07 20.07-20.07zm38.254-92.758c11.078 0 20.07 8.9766 20.07 20.07s-8.9922 20.086-20.07 20.086c-11.094 0-20.07-8.9922-20.07-20.086s8.9766-20.07 20.07-20.07zm-346.74 10.156c11.078 0 20.07 8.9922 20.07 20.07 0 11.094-8.9922 20.086-20.07 20.086-11.094 0-20.086-8.9922-20.086-20.086 0-11.078 8.9922-20.07 20.086-20.07zm-38.844 289.73c11.078 0 20.07 8.9766 20.07 20.07 0 11.078-8.9922 20.07-20.07 20.07-11.094 0-20.086-8.9922-20.086-20.07 0-11.094 8.9922-20.07 20.086-20.07zm-67.895-78.883c11.094 0 20.07 8.9766 20.07 20.07s-8.9766 20.07-20.07 20.07-20.086-8.9766-20.086-20.07 8.9922-20.07 20.086-20.07zm336.51-42.547c3.0391-2.5547 6.0156-4.5352 8.9023-5.7422 24.863-10.52 94.18-0.95312 94.18-0.95312s-80.559 18.895-98.242 56.648c-4.4727 9.5508-11.395 23.578-19.832 39.16h-1.3594c5.1836-12.031 9.2656-25.996 11.957-38.406 3.5977-16.582 5.3516-33.75 4.3828-50.707zm-80.953 80.801c8.0273-10.246 17.352-25.711 19.816-44.48 4.5508-34.656-7.1641-105.42-6.9375-134.35 0.24219-28.914 18.895-59.52 43.742-77.93 0 0-21.75 86.773-1.6758 142.71 20.07 55.938-9.793 118.56-9.793 118.56s-17.441 37.395-48.609 59.398c0.83203-13.664 1.6016-27.344 2.3125-41.02 0.39453-7.6016 0.78516-15.25 1.1484-22.898zm-138.48 16.34c-25.695-12.227-80.832-52.312-73.078-114.14 0 0 24.379 58.328 61.199 78.398 3.1602 1.7227 6.0625 3.2812 8.7344 4.6836 0.69531 10.188 1.707 20.645 3.1602 31.059zm205.21-167.71c5.8203-8.3125 10.988-16.777 15.023-25.09 24.379-50.195 40.645-106.13 40.645-106.13s5.6211 93.801-43.785 182.37c-1.3008-6.8906-3.1133-13.68-5.5-20.328-3.2344-9.0234-5.2734-19.559-6.3789-30.816zm-66.473 75.57c0.21094-44.133-0.98438-85.531-12.211-115.96-13.859-37.527-23.426-114.98-14.812-144.63 0 0-28.945 39.402-35.91 95.781 35.898 47.672 57.965 103.14 62.953 164.79zm-48.562 13.723s11.637 68.863-6.5312 111.35c4.7617 8.2383 10.445 15.992 16.93 23.172 3.8398 4.2461 8.707 9.0977 13.77 13.359 2.3594-36.684 6.1953-101.72 6.1953-134.59 0-98.441-44.812-180.24-118.82-240.73 0 0 76.254 136.5 88.434 227.44zm-115.61-109.47c4.4297 8.0547 8.1914 18.695 10.883 27.402 5.8945 19.043 9.25 39.012 10.004 58.977-33.797-30.004-73.258-84.551-58.508-161.92 12.453 26.164 23.684 50.391 37.621 75.559z" fill-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="logo-text">
+            <h1>Seagrass<span>Live</span></h1>
+            <p>Real-Time Detection System</p>
+        </div>
+    </div>
+    <div class="nav-badge">● ACTIVE</div>
+</nav>
+
+<main class="main-container">
+    <!-- Wizard Steps -->
+    <div class="wizard-steps" id="wizard-steps">
+        <div class="wizard-step active" data-step="1" onclick="goToStep(1)">
+            <div class="step-number"><span>1</span></div>
+            <div class="step-title">Pilih Model</div>
+            <div class="step-desc">YOLOv8 / EfficientDet</div>
+            <div class="step-connector"></div>
+        </div>
+        <div class="wizard-step" data-step="2" onclick="goToStep(2)">
+            <div class="step-number"><span>2</span></div>
+            <div class="step-title">Upload Video</div>
+            <div class="step-desc">Drag & Drop File</div>
+            <div class="step-connector"></div>
+        </div>
+        <div class="wizard-step" data-step="3" onclick="goToStep(3)">
+            <div class="step-number"><span>3</span></div>
+            <div class="step-title">Analisis</div>
+            <div class="step-desc">Live Detection</div>
+        </div>
+    </div>
+
+    <!-- Step 1: Model Selection -->
+    <div id="step-1" class="step-content active">
+        <div class="models-grid">
+            <div class="model-card" data-model="efficientdet" onclick="selectModel('efficientdet')">
+                <div class="model-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.5">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 12 17 22 12"/>
+                    </svg>
+                </div>
+                <div class="model-name">EfficientDet-D0</div>
+                <div class="model-tag">Anchor-Based</div>
+                <div class="model-desc">Efisiensi tinggi dengan BiFPN. Akurasi optimal untuk deteksi objek skala kecil.</div>
+                <div class="model-badge" id="badge-efficientdet"></div>
+            </div>
+            <div class="model-card" data-model="yolov8" onclick="selectModel('yolov8')">
+                <div class="model-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                        <circle cx="12" cy="9" r="2"/>
+                    </svg>
+                </div>
+                <div class="model-name">YOLOv8</div>
+                <div class="model-tag">Object Detection</div>
+                <div class="model-desc">Deteksi cepat dan akurat dengan arsitektur anchor-free. Optimal untuk real-time processing.</div>
+                <div class="model-badge" id="badge-yolov8"></div>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 40px;">
+            <button class="btn-primary" id="next-step-1" onclick="goToStep(2)" disabled>
+                Lanjut ke Upload →
+            </button>
+        </div>
+    </div>
+
+    <!-- Step 2: Upload Video -->
+    <div id="step-2" class="step-content">
+        <div class="upload-container">
+            <div class="upload-area-modern" id="upload-area">
+                <div class="upload-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                        <circle cx="12" cy="9" r="2"/>
+                    </svg>
+                </div>
+                <div class="upload-title">Upload Video Lamun</div>
+                <div class="upload-sub">Seret & lepas file video di sini</div>
+                <div class="upload-formats">MP4 · AVI · MOV · MKV · WEBM</div>
+                <input type="file" id="video-input" accept="video/*" style="display:none;">
+                <div style="margin-top: 16px;">
+                    <button class="btn-secondary" onclick="document.getElementById('video-input').click()">
+                        📁 Pilih dari komputer
+                    </button>
+                </div>
+            </div>
+
+            <div id="file-info" class="file-info" style="display:none;">
+                <div class="file-name" id="file-name"></div>
+                <button class="remove-file" onclick="removeFile()">✕</button>
+            </div>
+
+            <div id="progress-container" class="progress-container">
+                <div class="progress-bar-modern">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Mengupload 0%</div>
+            </div>
+
+            <div style="display: flex; gap: 16px; justify-content: center; margin-top: 32px;">
+                <button class="btn-secondary" onclick="goToStep(1)">← Kembali</button>
+                <button class="btn-primary" id="start-detect-btn" onclick="startDetection()" disabled>
+                    Mulai Deteksi →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Video Workspace -->
+    <div id="step-3" class="step-content">
+        <div class="video-workspace">
+            <div class="video-player-container">
+                <div class="video-wrapper" id="video-wrapper">
+                    <video id="video-player" autoplay playsinline muted loop></video>
+                    <canvas id="detection-canvas" class="canvas-overlay"></canvas>
+                </div>
+                <div class="video-controls">
+                    <div class="video-status">
+                        <div class="status-badge">
+                            <div class="status-dot-live"></div>
+                            <span id="model-status">Model Aktif</span>
+                        </div>
+                        <div class="status-badge">
+                            <span>🎥 Video Stream</span>
+                        </div>
+                    </div>
+                    <div class="control-buttons">
+                        <button class="btn-control" onclick="stopDetection()">
+                            ⬛ Stop Deteksi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h4>// LOKASI PENELITIAN</h4>
+        <p>Perairan <strong>Desa Pengudang</strong>, Pulau Bintan. Sistem ini menggunakan teknologi deep learning untuk mendeteksi dan mengidentifikasi <strong>spesies lamun</strong> utama sebagai indikator kondisi ekosistem padang lamun secara real-time.</p>
+    </div>
+</main>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// APP STATE
+// ─────────────────────────────────────────────────────────────
+const appState = {
+    selectedModel: null,
+    isRunning: false,
+    selectedFile: null,
+    currentStep: 1,
+    ws: null,
+    sendInterval: null
+};
+
+// ─────────────────────────────────────────────────────────────
+// WIZARD NAVIGATION
+// ─────────────────────────────────────────────────────────────
+function goToStep(step) {
+    if (appState.isRunning && step !== 3) return;
+    
+    // Validation
+    if (step === 2 && !appState.selectedModel) return;
+    if (step === 3 && (!appState.selectedFile || !appState.isRunning)) return;
+    
+    appState.currentStep = step;
+    
+    // Update UI
+    document.querySelectorAll('.step-content').forEach((el, idx) => {
+        el.classList.toggle('active', idx + 1 === step);
+    });
+    
+    document.querySelectorAll('.wizard-step').forEach((el, idx) => {
+        el.classList.toggle('active', idx + 1 === step);
+        if (idx + 1 < step) {
+            el.classList.add('completed');
+        } else if (idx + 1 > step) {
+            el.classList.remove('completed');
+        }
+    });
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODEL SELECTION
+// ─────────────────────────────────────────────────────────────
+function selectModel(modelName) {
+    if (appState.isRunning) return;
+    
+    appState.selectedModel = modelName;
+    
+    // Visual update
+    document.querySelectorAll('.model-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.model === modelName) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Update badges
+    document.getElementById('badge-yolov8').innerHTML = '';
+    document.getElementById('badge-efficientdet').innerHTML = '';
+    document.getElementById(`badge-${modelName}`).innerHTML = '✓';
+    
+    // Enable next button
+    document.getElementById('next-step-1').disabled = false;
+    
+    // Notify server
+    fetch('/select-model?model=' + modelName, { method: 'POST' })
+        .catch(err => console.error('Model selection error:', err));
+    
+    // Update status text
+    const modelLabel = modelName === 'yolov8' ? 'YOLOv8' : 'EfficientDet-D0';
+    document.getElementById('model-status').innerHTML = `🔍 ${modelLabel}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// FILE HANDLING
+// ─────────────────────────────────────────────────────────────
+document.getElementById('video-input').addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+        handleFileSelect(e.target.files[0]);
+    }
+});
+
+function handleFileSelect(file) {
+    if (!file.type.startsWith('video/')) {
+        alert('Silakan pilih file video yang valid');
+        return;
+    }
+    
+    appState.selectedFile = file;
+    
+    // Show file info
+    document.getElementById('file-name').textContent = `📹 ${file.name}`;
+    document.getElementById('file-info').style.display = 'flex';
+    
+    // Enable start button
+    const startBtn = document.getElementById('start-detect-btn');
+    startBtn.disabled = false;
+}
+
+function removeFile() {
+    appState.selectedFile = null;
+    document.getElementById('video-input').value = '';
+    document.getElementById('file-info').style.display = 'none';
+    document.getElementById('start-detect-btn').disabled = true;
+}
+
+// Drag & Drop
+const uploadArea = document.getElementById('upload-area');
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+});
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('drag-over');
+});
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('video/')) {
+        handleFileSelect(file);
+    } else {
+        alert('Silakan upload file video');
+    }
+});
+
+// ─────────────────────────────────────────────────────────────
+// DETECTION CONTROL
+// ─────────────────────────────────────────────────────────────
+async function startDetection() {
+    if (!appState.selectedFile || !appState.selectedModel) return;
+    
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const progressContainer = document.getElementById('progress-container');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    
+    loadingOverlay.classList.add('active');
+    progressContainer.style.display = 'block';
+    
+    const formData = new FormData();
+    formData.append('video', appState.selectedFile);
+    
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload-video', true);
+    
+    xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+            const percent = Math.round(e.loaded / e.total * 100);
+            progressFill.style.width = percent + '%';
+            progressText.textContent = `Mengupload ${percent}%`;
+        }
+    };
+    
+    xhr.onload = async () => {
+        if (xhr.status === 200) {
+            try {
+                await fetch('/start-detect', { method: 'POST' });
+                await activateRunningState();
+            } catch (err) {
+                console.error('Start detect error:', err);
+                alert('Gagal memulai deteksi');
+            }
+        } else {
+            alert('Upload gagal: ' + xhr.statusText);
+        }
+        loadingOverlay.classList.remove('active');
+    };
+    
+    xhr.onerror = () => {
+        alert('Gagal menghubungi server');
+        loadingOverlay.classList.remove('active');
+    };
+    
+    xhr.send(formData);
+}
+
+async function activateRunningState() {
+    appState.isRunning = true;
+    
+    // Navigate to step 3
+    goToStep(3);
+    
+    // Setup video
+    const video = document.getElementById('video-player');
+    const canvas = document.getElementById('detection-canvas');
+    
+    // Get video stream URL
+    try {
+        const resp = await fetch('/video-src');
+        const data = await resp.json();
+        if (data.url) {
+            video.src = data.url;
+            video.onloadedmetadata = () => {
+                video.play();
+                initWebSocket();
+            };
+        }
+    } catch (err) {
+        console.error('Video source error:', err);
+    }
+    
+    // Update stats sidebar
+    document.querySelector('.stats-sidebar').classList.add('open');
+    
+    // Start stats polling
+    startStatsPolling();
+}
+
+function stopDetection() {
+    fetch('/stop', { method: 'POST' })
+        .then(() => {
+            // Close WebSocket
+            if (appState.ws) {
+                appState.ws.close();
+                clearInterval(appState.sendInterval);
+            }
+            
+            appState.isRunning = false;
+            
+            // Clean up video
+            const video = document.getElementById('video-player');
+            if (video) {
+                video.pause();
+                video.src = '';
+            }
+            
+            // Reset UI
+            resetToStep1();
+        })
+        .catch(err => console.error('Stop error:', err));
+}
+
+function resetToStep1() {
+    appState.selectedFile = null;
+    appState.isRunning = false;
+    
+    // Reset file UI
+    document.getElementById('file-info').style.display = 'none';
+    document.getElementById('video-input').value = '';
+    document.getElementById('start-detect-btn').disabled = true;
+    document.getElementById('progress-fill').style.width = '0%';
+    document.getElementById('progress-container').style.display = 'none';
+    
+    // Reset model badges
+    document.querySelectorAll('.model-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.getElementById('badge-yolov8').innerHTML = '';
+    document.getElementById('badge-efficientdet').innerHTML = '';
+    
+    // Reset stats
+    document.getElementById('total-detections').innerHTML = '0';
+    document.getElementById('species-stats').innerHTML = '';
+    
+    // Navigate to step 1
+    goToStep(1);
+    
+    // Close stats sidebar
+    document.querySelector('.stats-sidebar').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────────────────────
+// WEBSOCKET VIDEO STREAM
+// ─────────────────────────────────────────────────────────────
+function initWebSocket() {
+    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+    appState.ws = new WebSocket(proto + '://' + location.host + '/ws/video');
+    const video = document.getElementById('video-player');
+    const canvas = document.getElementById('detection-canvas');
+    
+    appState.ws.onopen = () => {
+        appState.sendInterval = setInterval(() => sendFrame(video), 100);
+    };
+    
+    appState.ws.onmessage = (evt) => {
+        try {
+            const data = JSON.parse(evt.data);
+            if (data.frame && canvas) {
+                if (video.videoWidth) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = 'data:image/jpeg;base64,' + data.frame;
+                }
+            }
+        } catch(e) {}
+    };
+    
+    appState.ws.onclose = () => {
+        clearInterval(appState.sendInterval);
+    };
+}
+
+function sendFrame(video) {
+    if (!appState.ws || appState.ws.readyState !== WebSocket.OPEN) return;
+    if (!video || !video.videoWidth || !video.videoHeight) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    canvas.toBlob(blob => {
+        if (blob) blob.arrayBuffer().then(buf => appState.ws.send(buf));
+    }, 'image/jpeg', 0.7);
+}
+
+// ─────────────────────────────────────────────────────────────
+// STATS POLLING
+// ─────────────────────────────────────────────────────────────
+async function startStatsPolling() {
+    const poll = async () => {
+        if (!appState.isRunning) return;
+        try {
+            const resp = await fetch('/stats');
+            const stats = await resp.json();
+            updateStatsUI(stats);
+        } catch(e) {}
+        setTimeout(poll, 1000);
+    };
+    poll();
+}
+
+function updateStatsUI(stats) {
+    if (!stats) return;
+    
+    document.getElementById('total-detections').innerHTML = stats.total || 0;
+    
+    const speciesContainer = document.getElementById('species-stats');
+    if (stats.species && Object.keys(stats.species).length > 0) {
+        speciesContainer.innerHTML = `
+            <div class="stat-card-modern">
+                <div class="stat-header">
+                    <span class="stat-title">SPESIES LAMUN</span>
+                </div>
+                ${Object.entries(stats.species).map(([name, count]) => `
+                    <div class="detection-item">
+                        <span class="detection-name">${name}</span>
+                        <span class="detection-count">${count}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        speciesContainer.innerHTML = `
+            <div class="stat-card-modern">
+                <div class="stat-header">
+                    <span class="stat-title">SPESIES LAMUN</span>
+                </div>
+                <div class="detection-item">
+                    <span class="detection-name">Belum ada deteksi</span>
+                    <span class="detection-count">-</span>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function toggleStats() {
+    const sidebar = document.querySelector('.stats-sidebar');
+    sidebar.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    appState.currentStep = 1;
+});
+</script>
+</body>
+</html>
