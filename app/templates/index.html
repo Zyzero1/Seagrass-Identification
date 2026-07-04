@@ -1342,7 +1342,7 @@
             <div class="species-card-header">
             <div class="species-name">${species.name}</div>
             <div class="species-confidence" style="background: rgba(255,255,255,0.2); color: #ffffff">
-                ${species.confidence}% Confidence
+                ${species.count} Objek
             </div>
             </div>
             <div class="species-taxonomy">
@@ -1445,14 +1445,13 @@
           return;
         }
 
-        // Kelompokkan spesies unik dengan confidence tertinggi
         const speciesMap = {};
         detections.forEach((det) => {
           const name = det.label;
-          const conf = Math.round(det.confidence * 100);
-          if (!speciesMap[name] || conf > speciesMap[name].confidence) {
-            speciesMap[name] = { name, confidence: conf };
+          if (!speciesMap[name]) {
+            speciesMap[name] = { name, count: 0 };
           }
+          speciesMap[name].count += 1;
         });
 
         const uniqueSpecies = Object.values(speciesMap);

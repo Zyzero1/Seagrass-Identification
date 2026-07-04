@@ -161,10 +161,18 @@ def load_efficientdet():
     return _effdet_model
 
 def draw_boxes_on_image(image, detections):
-    """Draw bounding boxes on image"""
+    """Draw bounding boxes on image (skala proporsional & label selalu terlihat penuh)"""
     img_copy = image.copy()
     h, w = img_copy.shape[:2]
-    
+
+    REF_DIM = 1000.0
+    scale_factor = max(1.0, max(h, w) / REF_DIM)
+
+    box_thickness = max(2, int(round(3 * scale_factor)))
+    font_scale = 0.5 * scale_factor
+    text_thickness = max(1, int(round(2 * scale_factor)))
+    padding = max(6, int(round(8 * scale_factor)))
+
     for det in detections:
         bbox = det['bbox']
         label = det['label']
@@ -172,37 +180,64 @@ def draw_boxes_on_image(image, detections):
 
         if label == 'Seagrass':
             continue
-        
+
         x1 = int(np.clip(bbox[0], 0, w - 1))
         y1 = int(np.clip(bbox[1], 0, h - 1))
         x2 = int(np.clip(bbox[2], 1, w))
         y2 = int(np.clip(bbox[3], 1, h))
-        
+
         if (x2 - x1) < 5 or (y2 - y1) < 5:
             continue
-        
+
         color = SPECIES_COLORS.get(label, (39, 75, 156))
-        
-        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, 3)
-        
+
+        cv2.rectangle(img_copy, (x1, y1), (x2, y2), color, box_thickness)
+
         text = f"{label} {conf:.2f}"
         font = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.5
-        thickness = 2
-        
-        (text_w, text_h), baseline = cv2.getTextSize(text, font, font_scale, thickness)
-        
-        label_y1 = y1 - text_h - 8
-        label_y2 = y1
-        
-        if label_y1 < 0:
+
+        (text_w, text_h), baseline = cv2.getTextSize(text, font, font_scale, text_thickness)
+        label_h = text_h + padding
+        label_w = text_w + padding
+
+        if y1 - label_h >= 0:
+            label_y1 = y1 - label_h
+            label_y2 = y1
+        elif y2 + label_h <= h:
             label_y1 = y2
-            label_y2 = y2 + text_h + 8
-        
-        cv2.rectangle(img_copy, (x1, label_y1), (x1 + text_w + 8, label_y2), color, cv2.FILLED)
-        cv2.putText(img_copy, text, (x1 + 4, label_y2 - 4 if label_y1 < y1 else label_y1 + text_h + 3),
-                   font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
-    
+            label_y2 = y2 + label_h
+        else:
+            label_y1 = y1
+            label_y2 = y1 + label_h
+
+        if label_y2 > h:
+            label_y2 = h
+            label_y1 = h - label_h
+        if label_y1 < 0:
+            label_y1 = 0
+            label_y2 = label_h
+
+        label_x1 = x1
+        label_x2 = x1 + label_w
+        if label_x2 > w:
+            label_x2 = w
+            label_x1 = w - label_w
+        if label_x1 < 0:
+            label_x1 = 0
+            label_x2 = label_w
+
+        label_x1 = int(np.clip(label_x1, 0, w))
+        label_x2 = int(np.clip(label_x2, 0, w))
+        label_y1 = int(np.clip(label_y1, 0, h))
+        label_y2 = int(np.clip(label_y2, 0, h))
+
+        cv2.rectangle(img_copy, (label_x1, label_y1), (label_x2, label_y2), color, cv2.FILLED)
+        cv2.putText(
+            img_copy, text,
+            (label_x1 + padding // 2, label_y2 - padding // 2),
+            font, font_scale, (255, 255, 255), text_thickness, cv2.LINE_AA
+        )
+
     return img_copy
 
 def image_to_base64(img_bgr):
@@ -273,7 +308,6 @@ def identify_with_efficientdet(image_bgr):
         image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
         img_padded, scale, dx, dy = letterbox_image(image_rgb, (input_size, input_size))
         
-        # Normalisasi ImageNet standar timm
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         img_norm = (img_padded / 255.0 - mean) / std
