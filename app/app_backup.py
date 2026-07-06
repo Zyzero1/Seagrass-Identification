@@ -67,7 +67,6 @@ YOLO_SPECIES = [
     'Thalassia hemprichii'
 ]
 
-# EfficientDet: 7 classes
 EFFICIENTDET_SPECIES = [
     'Seagrass',                  # class 0
     'Cymodocea rotundata',       # class 1
@@ -135,7 +134,7 @@ def load_efficientdet():
 
                 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 ckpt = torch.load(
-                    os.path.join(BASE_DIR, 'models', 'effdet-pseudo-0.6489_0.001.ckpt'),
+                    os.path.join(BASE_DIR, 'models', 'effdet-nobg.ckpt'),
                     map_location='cpu',
                     weights_only=False
                 )
