@@ -134,7 +134,7 @@ def load_efficientdet():
 
                 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 ckpt = torch.load(
-                    os.path.join(BASE_DIR, 'models', 'effdet-nobg.ckpt'),
+                    os.path.join(BASE_DIR, 'models', 'effdet-pseudo_0.001.ckpt'),
                     map_location='cpu',
                     weights_only=False
                 )
