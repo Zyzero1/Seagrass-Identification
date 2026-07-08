@@ -34,7 +34,7 @@ state_lock = threading.Lock()
 
 TEMP_DIR = tempfile.mkdtemp(prefix="seagrassid_img_")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp', 'bmp'}
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
 
 def letterbox_image(image, expected_size):
     """Resize image with padding while keeping aspect ratio."""
@@ -245,7 +245,6 @@ def image_to_base64(img_bgr):
     return base64.b64encode(buf).decode('utf-8')
 
 def identify_with_yolo(image_bgr):
-    """Identify using YOLOv8 (6 species) - SINKRON 100% DENGAN NOTEBOOK RETRAIN SEL 16"""
     model = load_yolo()
     if model is None:
         return None, {'error': 'YOLO model not loaded', 'total': 0}
