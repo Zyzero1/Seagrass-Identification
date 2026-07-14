@@ -970,6 +970,70 @@ body:has(.sidebar.expanded) .main-container {
   animation: pulse 1.2s infinite;
 }
 
+.result-badge .dot-warning {
+  width: 10px;
+  height: 10px;
+  background: #f59e0b;
+  border-radius: 50%;
+  animation: pulse 1.2s infinite;
+}
+
+.no-detection-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 16px 28px;
+  padding: 16px 18px;
+  background: #fef3e2;
+  border: 1px solid #fbd38d;
+  border-left: 4px solid #f59e0b;
+  border-radius: 12px;
+  animation: fadeInAlert 0.3s ease;
+}
+
+.no-detection-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #b45309;
+}
+
+.no-detection-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.no-detection-text {
+  flex: 1;
+}
+
+.no-detection-title {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #92400e;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.no-detection-desc {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #7c5a1e;
+}
+
+@keyframes fadeInAlert {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .control-buttons {
   display: flex;
   gap: 12px;

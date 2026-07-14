@@ -372,6 +372,22 @@
                   </button>
                 </div>
               </div>
+              <!-- NO DETECTION ALERT -->
+              <div
+                class="no-detection-alert"
+                id="no-detection-alert"
+                style="display: none"
+              >
+                <div class="no-detection-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"></path><line x1="12" y1="9" x2="12" y2="14"></line><line x1="12" y1="17.5" x2="12" y2="17.51"></line></svg>
+                </div>
+                <div class="no-detection-text">
+                  <div class="no-detection-title" id="no-detection-title">Lamun Tidak Terdeteksi</div>
+                  <div class="no-detection-desc" id="no-detection-desc">
+                    Sistem tidak menemukan lamun pada gambar ini. Kemungkinan gambar bukan lamun, atau kualitas gambar (blur, gelap, terlalu jauh) membuat lamun sulit dikenali. Coba unggah foto lamun yang lebih jelas dan close-up.
+                  </div>
+                </div>
+              </div>
               <!-- IDENTIFICATION DETAILS PANEL -->
               <div
                 class="identification-details"
@@ -1304,6 +1320,56 @@
         }
       }
 
+      function countDetections(results) {
+        const det = results.detections;
+        if (typeof results.total === "number") return results.total;
+        if (Array.isArray(det)) return det.length;
+        if (det && typeof det === "object") {
+          return Object.values(det).reduce((a, b) => a + (Number(b) || 0), 0);
+        }
+        return 0;
+      }
+
+      function toggleNoDetectionAlert(show, opts) {
+        const alertBox = document.getElementById("no-detection-alert");
+        if (!alertBox) return;
+
+        if (show) {
+          const titleEl = document.getElementById("no-detection-title");
+          const descEl = document.getElementById("no-detection-desc");
+          if (titleEl) titleEl.textContent = (opts && opts.title) || "Lamun Tidak Terdeteksi";
+          if (descEl) {
+            descEl.textContent =
+              (opts && opts.desc) ||
+              "Sistem tidak menemukan lamun pada gambar ini. Kemungkinan gambar bukan lamun, atau kualitas gambar (blur, gelap, terlalu jauh) membuat lamun sulit dikenali. Coba unggah foto lamun yang lebih jelas dan close-up.";
+          }
+          alertBox.style.display = "flex";
+        } else {
+          alertBox.style.display = "none";
+        }
+      }
+
+      function setResultStatusBadge(hasDetection) {
+        const statusEl = document.getElementById("model-status");
+        const badgeContentEl = document.querySelector(
+          "#step-3 .result-badge-content"
+        );
+        const dotEl = document.querySelector("#step-3 .result-badge .dot-success, #step-3 .result-badge .dot-warning");
+
+        if (dotEl) {
+          dotEl.classList.remove("dot-success", "dot-warning");
+          dotEl.classList.add(hasDetection ? "dot-success" : "dot-warning");
+        }
+        if (statusEl) {
+          statusEl.textContent = hasDetection ? "Model Aktif" : "Tidak Terdeteksi";
+        }
+        if (badgeContentEl) {
+          badgeContentEl.innerHTML = hasDetection
+            ? `${icon("search")} Identifikasi Selesai`
+            : `${icon("alertTriangle")} Tidak Ada Lamun Terdeteksi`;
+        }
+      }
+
       async function showIdentificationResults(results) {
         appState.identificationResults = results;
 
@@ -1322,6 +1388,12 @@
           resultImg.style.cssText =
             "width:100%;height:auto;display:block;border-radius:12px;";
         }
+
+        const total = countDetections(results);
+        const hasDetection = total > 0;
+
+        setResultStatusBadge(hasDetection);
+        toggleNoDetectionAlert(!hasDetection);
 
         displaySpeciesDetails(results);
 
@@ -1533,6 +1605,7 @@
         document.getElementById("image-preview-container").style.display =
           "none";
         document.getElementById("result-image").src = "";
+        toggleNoDetectionAlert(false);
 
         goToStep(1);
       }
